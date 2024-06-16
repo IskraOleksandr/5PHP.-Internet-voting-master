@@ -3,7 +3,7 @@ $ipAddress = $_SERVER['REMOTE_ADDR'];
 $ipVoteFileName = "ipVote.json";
 $votesFileName = "votes.json";
 
-// Check if the IP address is already present in the file
+
 $ipExists = false;
 $fileContent_ipVote = file_get_contents($ipVoteFileName);
 if ($fileContent_ipVote !== false) {
@@ -14,7 +14,7 @@ if ($fileContent_ipVote !== false) {
         $currentTime = time();
         $timeDifference = $currentTime - $lastVoteTime;
 
-        // If less than 1 minute has passed, restrict the vote
+
         if ($timeDifference < 60) {
             $ipExists = true;
         }
@@ -22,23 +22,23 @@ if ($fileContent_ipVote !== false) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // If IP address does not exist or 1 minute has passed, process the vote
+
     if (!$ipExists) {
         $selectedLanguage = $_POST['language'];
         $votes = [];
 
-        // Read the votes from the file, if it exists
+
         if (file_exists($votesFileName)) {
             $votes = json_decode(file_get_contents($votesFileName), true);
         }
 
-        // Increment the vote count for the selected language
+
         if (isset($votes[$selectedLanguage])) {
             $votes[$selectedLanguage]++;
         } else {
             $votes[$selectedLanguage] = 1;
             $defaultLanguages = ['C++', 'C#', 'JavaScript', 'PHP', 'Java'];
-            // Add other languages to the votes array with 0 count
+
             foreach ($defaultLanguages as $language) {
                 if (!isset($votes[$language])) {
                     $votes[$language] = 0;
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Calculate the percentages
+
         $totalVotes = array_sum($votes);
         $percentages = [];
         foreach ($votes as $language => $count) {
@@ -54,28 +54,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $percentages[$language] = round($percentage, 2);
         }
 
-        // Update the votes file with the new data
+
         file_put_contents($votesFileName, json_encode($votes));
 
-        // Update the IP vote file with the current IP and time
+
         $ipData[$ipAddress] = date('Y-m-d H:i:s');
         file_put_contents($ipVoteFileName, json_encode($ipData));
     } else {
-        // IP address already exists, so voting is restricted
-        echo "<p>You have already voted. Please wait for 1 minute before voting again.</p>";
+
+        echo "<p>Вы уже проголосовали. Пожалуйста, подождите 1 минуту, прежде чем проголосовать снова.</p>";
     }
 }
 
-// Read the current votes from the file, if it exists
+
 $votes = [];
 if (file_exists($votesFileName)) {
     $votes = json_decode(file_get_contents($votesFileName), true);
     if ($votes === null) {
-        $votes = []; // Initialize as empty array if decoding fails
+        $votes = [];
     }
 }
 
-// Calculate the percentages
+
 $totalVotes = array_sum($votes);
 $percentages = [];
 foreach ($votes as $language => $count) {
@@ -83,7 +83,7 @@ foreach ($votes as $language => $count) {
     $percentages[$language] = round($percentage, 2);
 }
 
-// Set default values if no votes are recorded
+
 if (empty($votes)) {
     $defaultLanguages = ['C++', 'C#', 'JavaScript', 'PHP', 'Java'];
     foreach ($defaultLanguages as $language) {
@@ -96,7 +96,7 @@ if (empty($votes)) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Internet Voting</title>
+    <title>Интернет-голосование</title>
     <style>
         body {
             text-align: center;
@@ -117,7 +117,7 @@ if (empty($votes)) {
             margin-top: 20px;
             display: flex;
             flex-direction: column;
-            align-items: flex-start; /* Align items to the left */
+            align-items: flex-start;
         }
 
         .radio-group input[type="radio"] {
@@ -152,19 +152,19 @@ if (empty($votes)) {
             font-size: 14px;
         }
 
-        /* CSS styles for the voting result rectangles */
+
         .result-bar {
             width: 100%;
             height: 20px;
-            background-color: gray;
+            background-color: green;
             margin-bottom: 5px;
         }
     </style>
 </head>
 <body>
-<h1>Internet Voting</h1>
+<h1>Интернет-голосование</h1>
 <div class="container">
-    <h2>Which programming language would you prefer?</h2>
+    <h2>Какой язык программирования вы бы предпочли?</h2>
     <form method="post">
         <div class="radio-group">
             <?php foreach ($votes as $language => $count) { ?>
@@ -174,14 +174,14 @@ if (empty($votes)) {
                 </label><br>
             <?php } ?>
         </div>
-        <button type="submit" id="vote-button">Vote</button>
+        <button type="submit" id="vote-button">Голосовать</button>
     </form>
 </div>
 
 <table>
     <tr>
-        <th>Programming language</th>
-        <th>% of votes</th>
+        <th>Язык программирования</th>
+        <th>% голосов</th>
         <th></th>
     </tr>
     <?php foreach ($votes as $language => $count) { ?>
